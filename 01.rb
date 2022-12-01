@@ -1,9 +1,5 @@
 module Day01
-
-
-
   class Items
-
     class << self
       def from(raw_text_list)
         items = []
@@ -32,7 +28,6 @@ module Day01
     def total
       @items.sum
     end
-
   end
 
   class << self
@@ -41,7 +36,7 @@ module Day01
     end
 
     def part_two(input)
-      Items.from(input).map(&:total).sort.reverse.first(3).sum
+      Items.from(input).map(&:total).sort.last(3).reverse.sum
     end
   end
 end
