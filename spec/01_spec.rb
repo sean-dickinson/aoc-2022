@@ -14,4 +14,26 @@ describe Day01 do
       expect(Day01.part_two(input)).to eq(45000)
     end
   end
+
+  describe "Items" do
+    describe "self.#from" do
+      it "creates a list of items from raw input" do
+        input = File.readlines("spec/test_inputs/01.txt", chomp: true)
+        result = Day01::Items.from(input)
+
+        expect(result).to be_a(Array)
+        expect(result.size).to eq(5)
+        expect(result).to all(be_an(Day01::Items))
+      end
+    end
+
+    describe "#total" do
+      it "calculates the sum of the items given" do
+        list = [1000, 2000, 3000]
+        items = Day01::Items.new(list)
+
+        expect(items.total).to be(6000)
+      end
+    end
+  end
 end

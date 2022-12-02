@@ -2,27 +2,15 @@ module Day01
   class Items
     class << self
       def from(raw_text_list)
-        items = []
-        item_list = []
-        raw_text_list.each do |line|
-          if line == ""
-            items << new(item_list.map.to_a)
-            item_list = []
-            next
-          end
-          item_list << line.to_i
-        end
-        items << new(item_list.map.to_a) if item_list.size > 0
-        items
+        # See method here https://ruby-doc.org/3.1.3/Enumerable.html#method-i-chunk_while
+        raw_text_list.chunk_while { |line, next_line| next_line != "" }
+          .map { |list| list.reject(&:empty?).map(&:to_i) }
+          .map { |list| new(list) }
       end
     end
 
     def initialize(items)
       @items = items
-    end
-
-    def to_s
-      @items.to_s
     end
 
     def total
