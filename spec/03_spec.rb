@@ -17,17 +17,27 @@ describe Day03 do
     end
   end
 
+  describe "Rucksack" do
+    describe "#common_item" do
+      it "returns the common item between the 2 compartments" do
+        input = "vJrwpWtwJgWrhcsFMMfFFhFp"
+        rucksack = Day03::Rucksack.new(input)
+        expect(rucksack.common_item).to eq("p")
+      end
+    end
+  end
+
   describe "#part_one" do
     it "calculates the sum of all priorities of the common item types" do
       skip
-      input = File.readlines("spec/test_inputs/03.txt", chomp: true)
+      # input = File.readlines("spec/test_inputs/03.txt", chomp: true)
     end
   end
 
   describe "#part_two" do
     it "?" do
       skip
-      input = File.readlines("spec/test_inputs/03.txt", chomp: true)
+      # input = File.readlines("spec/test_inputs/03.txt", chomp: true)
     end
   end
 end
