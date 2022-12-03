@@ -24,9 +24,10 @@ module Day03
   end
 
   class Rucksack
-    attr_reader :compartment_1, :compartment_2
+    attr_reader :contents, :compartment_1, :compartment_2
     def initialize(input)
       @compartment_1, @compartment_2 = create_compartments(input)
+      @contents = @compartment_1 + @compartment_2
     end
 
     def common_item
@@ -45,13 +46,38 @@ module Day03
     end
   end
 
+  class RucksackGroup
+    class << self
+      def from(*lines)
+        new(*lines.map { |line| Rucksack.new(line) })
+      end
+    end
+
+    attr_reader :rucksacks
+    def initialize(*rucksacks)
+      @rucksacks = rucksacks
+    end
+
+    def common_item
+      rucksacks.map(&:contents).reduce(&:&).first
+    end
+  end
+
   class << self
     def part_one(input)
-      raise NotImplementedError
+      mapping = PriorityMapping.new
+      input.sum do |sack|
+        common_item = Rucksack.new(sack).common_item
+        mapping.fetch(common_item)
+      end
     end
 
     def part_two(input)
-      raise NotImplementedError
+      mapping = PriorityMapping.new
+      input.each_slice(3).sum do |lines|
+        common_item = RucksackGroup.from(*lines).common_item
+        mapping.fetch(common_item)
+      end
     end
   end
 end

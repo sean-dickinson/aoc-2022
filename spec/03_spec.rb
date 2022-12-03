@@ -27,17 +27,28 @@ describe Day03 do
     end
   end
 
+  describe "RucksackGroup" do
+    describe "#common_item" do
+      it "returns the common item between all Rucksacks" do
+        input_1 = "abcd"
+        input_2 = "aBCD"
+        group = Day03::RucksackGroup.from(input_1, input_2)
+        expect(group.common_item).to eq("a")
+      end
+    end
+  end
+
   describe "#part_one" do
     it "calculates the sum of all priorities of the common item types" do
-      skip
-      # input = File.readlines("spec/test_inputs/03.txt", chomp: true)
+      input = File.readlines("spec/test_inputs/03.txt", chomp: true)
+      expect(Day03.part_one(input)).to eq(157)
     end
   end
 
   describe "#part_two" do
-    it "?" do
-      skip
-      # input = File.readlines("spec/test_inputs/03.txt", chomp: true)
+    it "calculates the sum of all priorities of the common items from each group of 3 rucksacks" do
+      input = File.readlines("spec/test_inputs/03.txt", chomp: true)
+      expect(Day03.part_two(input)).to eq(70)
     end
   end
 end
