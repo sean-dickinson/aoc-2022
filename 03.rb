@@ -65,7 +65,6 @@ module Day03
 
   class << self
     def part_one(input)
-      mapping = PriorityMapping.new
       input.sum do |sack|
         common_item = Rucksack.new(sack).common_item
         mapping.fetch(common_item)
@@ -73,11 +72,16 @@ module Day03
     end
 
     def part_two(input)
-      mapping = PriorityMapping.new
       input.each_slice(3).sum do |lines|
         common_item = RucksackGroup.from(*lines).common_item
         mapping.fetch(common_item)
       end
+    end
+
+    private
+
+    def mapping
+      @_mapping = PriorityMapping.new
     end
   end
 end
