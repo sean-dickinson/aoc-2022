@@ -74,17 +74,38 @@ describe Day04 do
     end
     describe "#overlaps?" do
       it "returns true if there is any overlap between this assignment and the other given" do
-        assignment = Day04::Assignment.new("4-5")
-        other_assignment = Day04::Assignment.new("2-5")
+        assignment = Day04::Assignment.new("4-7")
+        others = [
+          "2-5",
+          "2-4",
+          "5-6",
+          "5-5",
+          "7-8",
+          "1-10"
+        ]
 
-        expect(assignment.overlaps?(other_assignment)).to be(true)
+        others.each do |other|
+          other_assignment = Day04::Assignment.new(other)
+
+          expect(assignment.overlaps?(other_assignment)).to be(true)
+        end
       end
 
       it "returns false if there is no overlap between this assignment and the other given" do
         assignment = Day04::Assignment.new("7-8")
-        other_assignment = Day04::Assignment.new("2-5")
 
-        expect(assignment.overlaps?(other_assignment)).to be(false)
+        others = [
+          "2-5",
+          "2-6",
+          "6-6",
+          "9-10"
+        ]
+
+        others.each do |other|
+          other_assignment = Day04::Assignment.new(other)
+
+          expect(assignment.overlaps?(other_assignment)).to be(false)
+        end
       end
     end
   end

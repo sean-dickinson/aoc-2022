@@ -1,5 +1,9 @@
+require "forwardable"
 module Day04
   class Assignment
+    extend Forwardable
+    def_delegators :range, :begin, :end, :include?
+
     attr_reader :range
     def initialize(text)
       @range = parse_text(text)
@@ -10,7 +14,9 @@ module Day04
     end
 
     def overlaps?(other)
-      (range.to_a & other.range.to_a).size > 0
+      include?(other.begin) ||
+        include?(other.end) ||
+        other.cover?(self)
     end
 
     def ==(other)
