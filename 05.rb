@@ -108,11 +108,8 @@ module Day05
 
   class << self
     def part_one(input)
-      stacks_input, moves_input = split_input(input)
-      mapping = Stack::Parser.new(stacks_input).to_h
-
+      split_input(input)
       group = Stack::Group.new(mapping)
-      move_parser = MoveParser.new
 
       moves_input.each_with_index do |line, index|
         group.move(*move_parser.call(line))
@@ -122,11 +119,8 @@ module Day05
     end
 
     def part_two(input)
-      stacks_input, moves_input = split_input(input)
-      mapping = Stack::Parser.new(stacks_input).to_h
-
+      split_input(input)
       group = Stack::Group2.new(mapping)
-      move_parser = MoveParser.new
 
       moves_input.each_with_index do |line, index|
         group.move(*move_parser.call(line))
@@ -137,10 +131,26 @@ module Day05
 
     private
 
+    def move_parser
+      @_move_parser ||= MoveParser.new
+    end
+
+    def mapping
+      Stack::Parser.new(stacks_input).to_h
+    end
+
+    def stacks_input
+      @processed_input.first
+    end
+
+    def moves_input
+      @processed_input.last
+    end
+
     def split_input(input)
       stacks = input[0...blank_line_index(input)]
       moves = input[(blank_line_index(input) + 1)..]
-      [stacks, moves]
+      @processed_input = [stacks, moves]
     end
 
     def blank_line_index(input)
