@@ -49,7 +49,7 @@ describe Day09 do
     end
 
     describe "#follow" do
-      it "does not change the position if the other is only 1 step away" do
+      it "does not change the position if the other knot is only 1 step away" do
         rope_head = Day09::Rope::Knot.new(0, 1)
         rope_tail = Day09::Rope::Tail.new(0, 0)
 
