@@ -1,5 +1,4 @@
 module Day10
-
   class CycleLogger
     attr_reader :logs
     def initialize
@@ -87,7 +86,7 @@ module Day10
       input.each do |line|
         register.send(*parse_line(line))
       end
-      
+
       cycles = [20, 60, 100, 140, 180, 220]
 
       cycles.sum do |cycle_num|
@@ -105,7 +104,6 @@ module Day10
     end
 
     private
-
 
     def parse_line(line)
       line.split
