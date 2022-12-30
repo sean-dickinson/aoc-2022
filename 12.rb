@@ -1,8 +1,10 @@
 module Day12
   class Maze
+    attr_reader :start, :finish
     private attr_reader :rows
     def initialize(input)
       @rows = parse_input(input)
+      set_start_and_finish
     end
 
     def num_columns
@@ -18,6 +20,12 @@ module Day12
     end
 
     private
+
+    def set_start_and_finish
+      flattened_rows = rows.to_a.flatten
+      @start = flattened_rows.find(&:is_start?)
+      @finish = flattened_rows.find(&:is_finish?)
+    end
 
     def parse_input(input)
       input.map.with_index { |line, row|
@@ -54,29 +62,95 @@ module Day12
       @height = height
     end
 
+    def pos
+      [row, col]
+    end
+
     def ==(other)
       other.row == row && other.col == col && other.height == height
     end
 
+    def to_s
+      "(#{row}, #{col}) #{height}"
+    end
+
     def can_step_to?(other)
-      allowed_steps.include?(other.height)
+      allowed_steps.include?(other.true_height)
     end
 
     def is_start?
       height == "S"
     end
 
+    def is_finish?
+      height == "E"
+    end
+
+    protected
+
+    def true_height
+      {
+        "E" => "z",
+        "S" => "a"
+      }.fetch(height, height)
+    end
+
     private
 
     def allowed_steps
-      return ["a"] if is_start?
-      slice = ("a".."z").each_slice(2).find { |start, stop| start == height }
-      ["E", *slice]
+      return ["z"] if true_height == "z"
+      ("a".."z").each_cons(2).find { |start, stop| start == true_height }
+    end
+  end
+
+  class Solver
+    private attr_reader :maze, :queue, :visited_cells
+    def initialize(maze)
+      @maze = maze
+      @visited_cells = []
+      initialize_queue
+    end
+
+    def shortest_path
+      until queue.empty?
+        cell, steps = queue.pop
+        if cell.is_finish?
+          return steps
+        else
+          enqueue_neighbors(cell, steps + 1)
+        end
+      end
+      puts "visited #{visited_cells.size} cells and found no solution"
+    end
+
+    private
+
+    def initialize_queue
+      @queue = Queue.new
+      @queue << [maze.start, 0]
+      mark_as_visited(maze.start)
+    end
+
+    def enqueue_neighbors(cell, steps)
+      neighbors_to_queue(cell).each do |neighbor|
+        mark_as_visited(neighbor)
+        queue << [neighbor, steps]
+      end
+    end
+
+    def mark_as_visited(cell)
+      visited_cells << cell
+    end
+
+    def neighbors_to_queue(cell)
+      maze.get_valid_neighbors(cell) - visited_cells
     end
   end
 
   class << self
     def part_one(input)
+      maze = Maze.new(input)
+      Solver.new(maze).shortest_path
     end
 
     def part_two(input)

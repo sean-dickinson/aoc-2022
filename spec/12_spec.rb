@@ -13,6 +13,30 @@ describe Day12 do
       end
     end
 
+    describe "#start" do
+      it "returns the cell that is the start of the maze" do
+        input = [
+          "aacx",
+          "SabE"
+        ]
+        expected_start = Day12::Cell.new(1, 0, "S")
+        maze = Day12::Maze.new(input)
+        expect(maze.start).to eq(expected_start)
+      end
+    end
+
+    describe "#finish" do
+      it "returns the cell that is the end of the maze" do
+        input = [
+          "aacx",
+          "SabE"
+        ]
+        expected_finish = Day12::Cell.new(1, 3, "E")
+        maze = Day12::Maze.new(input)
+        expect(maze.finish).to eq(expected_finish)
+      end
+    end
+
     describe "#get_valid_neighbors" do
       it "gets the position and height from the cell" do
         input = [
@@ -60,6 +84,24 @@ describe Day12 do
         expect(cell).to receive(:can_step_to?).exactly(4).times.and_return(true)
         expect(maze.get_valid_neighbors(cell)).to contain_exactly(*expected_neighbors)
       end
+
+      it "returns the 3 possible cells for a bottom row cell" do
+        input = [
+          "Sacx",
+          "aabE",
+          "aabb"
+        ]
+        expected_neighbors = [
+          Day12::Cell.new(2, 0, "a"),
+          Day12::Cell.new(1, 1, "a"),
+          Day12::Cell.new(2, 2, "b")
+        ]
+        maze = Day12::Maze.new(input)
+        cell = double("cell")
+        expect(cell).to receive(:pos).and_return([2, 1])
+        expect(cell).to receive(:can_step_to?).exactly(3).times.and_return(true)
+        expect(maze.get_valid_neighbors(cell)).to contain_exactly(*expected_neighbors)
+      end
     end
   end
 
@@ -79,16 +121,24 @@ describe Day12 do
         expect(cell.can_step_to?(other_cell)).to eq true
       end
 
-      it "returns true if the cell is the start cell" do
+      it "treats the start cell as height a" do
         start_cell = Day12::Cell.new(0, 0, "S")
-        other_cell = Day12::Cell.new(0, 1, "a")
-        expect(start_cell.can_step_to?(other_cell)).to eq true
+        [
+          Day12::Cell.new(0, 1, "a"),
+          Day12::Cell.new(0, 1, "b"),
+        ].each do |other_cell|
+          expect(start_cell.can_step_to?(other_cell)).to eq true
+        end
       end
 
-      it "returns true if the neigbhoring cell end cell" do
-        cell = Day12::Cell.new(0, 0, "a")
-        end_cell = Day12::Cell.new(0, 1, "E")
-        expect(cell.can_step_to?(end_cell)).to eq true
+      it "treats the finish cell as height z" do
+        [
+          Day12::Cell.new(0, 0, "y"),
+          Day12::Cell.new(0, 0, "z")
+        ].each do |cell|
+          end_cell = Day12::Cell.new(0, 1, "E")
+          expect(cell.can_step_to?(end_cell)).to eq true
+        end
       end
 
       it "returns false if the neighboring cell is more than one step higher than the current cell" do
@@ -107,7 +157,6 @@ describe Day12 do
 
   describe "#part_one" do
     it "finds the number of steps in the shortest path" do
-      skip
       input = File.readlines("spec/test_inputs/12.txt", chomp: true)
       expect(Day12.part_one(input)).to eq(31)
     end
