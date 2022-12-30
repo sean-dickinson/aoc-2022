@@ -15,8 +15,16 @@ module Day12
       rows.size
     end
 
+    def get(row, col)
+      rows[row][col]
+    end
+
     def get_valid_neighbors(cell)
       get_neighbors(cell.pos).filter { |neighbor| cell.can_step_to?(neighbor) }
+    end
+
+    def possible_starts
+      rows.to_a.flatten.select { |c| c.true_height == "a" }
     end
 
     private
@@ -34,7 +42,7 @@ module Day12
     end
 
     def get_neighbors(pos)
-      neighbor_coords(*pos).map { |r, c| rows[r][c] }
+      neighbor_coords(*pos).map { |p| get(*p) }
     end
 
     def neighbor_coords(row, col)
@@ -55,6 +63,7 @@ module Day12
   end
 
   class Cell
+    HEIGHTS = ("a".."z").to_a
     attr_reader :row, :col, :height
     def initialize(row, col, height)
       @row = row
@@ -86,8 +95,6 @@ module Day12
       height == "E"
     end
 
-    protected
-
     def true_height
       {
         "E" => "z",
@@ -98,17 +105,17 @@ module Day12
     private
 
     def allowed_steps
-      return ["z"] if true_height == "z"
-      ("a".."z").each_cons(2).find { |start, stop| start == true_height }
+      next_height = HEIGHTS.find_index { |h| h == true_height } + 1
+      HEIGHTS[..next_height]
     end
   end
 
   class Solver
     private attr_reader :maze, :queue, :visited_cells
-    def initialize(maze)
+    def initialize(maze, start_at = nil)
       @maze = maze
       @visited_cells = []
-      initialize_queue
+      initialize_queue(start_at)
     end
 
     def shortest_path
@@ -120,15 +127,15 @@ module Day12
           enqueue_neighbors(cell, steps + 1)
         end
       end
-      puts "visited #{visited_cells.size} cells and found no solution"
     end
 
     private
 
-    def initialize_queue
+    def initialize_queue(start_at)
       @queue = Queue.new
-      @queue << [maze.start, 0]
-      mark_as_visited(maze.start)
+      start_at ||= maze.start
+      @queue << [start_at, 0]
+      mark_as_visited(start_at)
     end
 
     def enqueue_neighbors(cell, steps)
@@ -154,6 +161,11 @@ module Day12
     end
 
     def part_two(input)
+      maze = Maze.new(input)
+      maze.possible_starts
+        .map { |start_at| Solver.new(maze, start_at).shortest_path }
+        .compact
+        .min
     end
   end
 end
