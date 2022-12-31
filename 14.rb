@@ -20,6 +20,10 @@ module Day14
       @y = y
     end
 
+    def move(dx, dy)
+      self.class.new(x + dx, y + dy)
+    end
+
     def ==(other)
       x == other.x && y == other.y
     end
@@ -34,6 +38,8 @@ module Day14
   end
 
   class Grid
+    class OutOfBoundsError < StandardError; end
+
     attr_reader :num_rows, :num_columns, :grid
     def initialize(x, y)
       @num_rows = x
@@ -49,6 +55,11 @@ module Day14
       @grid[x][y] = item
     end
 
+    def occupied?(x, y)
+      raise OutOfBoundsError if y >= num_columns
+      get(x, y) != :empty
+    end
+
     private
 
     def setup_grid
@@ -56,6 +67,33 @@ module Day14
       num_rows.times do
         @grid << [].fill(:empty, 0, num_columns)
       end
+    end
+  end
+
+  class Sand
+    attr_reader :pos
+    def initialize(x, y)
+      @pos = Point.new(x, y)
+    end
+
+    def fall(grid)
+      fall_options.each do |new_pos|
+        unless grid.occupied?(new_pos.x, new_pos.y)
+          @pos = new_pos
+          return true
+        end
+      end
+      false
+    end
+
+    private
+
+    def fall_options
+      [
+        [0, 1],
+        [-1, 1],
+        [1, 1]
+      ].map { |dx, dy| pos.move(dx, dy) }
     end
   end
 
