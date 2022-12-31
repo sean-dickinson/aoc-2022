@@ -1,4 +1,5 @@
 source "https://rubygems.org"
 gem "rspec"
+gem "rspec-collection_matchers"
 gem "advent_of_code_cli"
 gem "standard"
