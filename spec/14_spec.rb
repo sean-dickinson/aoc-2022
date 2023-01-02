@@ -140,6 +140,21 @@ describe Day14 do
           expect(grid.get(point)).to eq(:rock)
         end
       end
+
+      describe "when floor is true" do
+        it "creates a floor 2 blocks under the last rock" do
+          input = [
+            "498,4 -> 498,6 -> 496,6",
+            "503,4 -> 502,4 -> 502,9 -> 494,9"
+          ]
+
+          grid = Day14::Grid.from(input, true)
+
+          expect(grid.get(Day14::Point.new(43, 11))).to eq(:floor)
+          expect(grid.get(Day14::Point.new(37, 11))).to eq(:floor)
+          expect(grid.get(Day14::Point.new(-11, 11))).to eq(:floor)
+        end
+      end
     end
 
     describe "#new" do
@@ -156,11 +171,6 @@ describe Day14 do
         grid = Day14::Grid.new(10, 20)
 
         expect(grid.get(Day14::Point.new(0, 0))).to eq(:empty)
-      end
-
-      it "throws an error if the given coordinate is lower than the lowest level" do
-        grid = Day14::Grid.new(500, 10)
-        expect { grid.get(Day14::Point.new(498, 10)) }.to raise_error(Day14::Grid::OutOfBoundsError)
       end
     end
 
@@ -264,6 +274,13 @@ describe Day14 do
     it "finds how many units of sand come to rest before sand starts falling infinitely" do
       input = File.readlines("spec/test_inputs/14.txt", chomp: true)
       expect(Day14.part_one(input)).to eq(24)
+    end
+  end
+
+  describe "#part_two" do
+    it "finds how many units of sand come to rest until the hole is blocked at 500,0" do
+      input = File.readlines("spec/test_inputs/14.txt", chomp: true)
+      expect(Day14.part_two(input)).to eq(93)
     end
   end
 end

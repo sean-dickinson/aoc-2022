@@ -51,13 +51,14 @@ module Day14
   end
 
   class Grid
-    class OutOfBoundsError < StandardError; end
-
     class << self
-      def from(input)
+      def from(input, floor = false)
         rocks = points(input)
         x, y = grid_size(rocks)
-        grid = new(x, y)
+        if floor
+          y += 1
+        end
+        grid = new(x, y, floor)
         rocks.each do |point|
           grid.place(point, :rock)
         end
@@ -89,14 +90,13 @@ module Day14
     end
 
     attr_reader :num_rows, :num_columns, :grid
-    def initialize(x, y)
+    def initialize(x, y, floor = false)
       @num_rows = x
       @num_columns = y
-      @grid = Hash.new(:empty)
+      set_grid(floor)
     end
 
     def get(point)
-      raise OutOfBoundsError if point.y >= num_columns
       grid[point]
     end
 
@@ -110,6 +110,26 @@ module Day14
 
     def sand_count
       grid.values.count(:sand)
+    end
+
+    private
+
+    def set_grid(floor = false)
+      @grid = if floor
+        floored_grid
+      else
+        Hash.new(:empty)
+      end
+    end
+
+    def floored_grid
+      Hash.new do |hash, point|
+        hash[point] = if point.y == num_columns
+          :floor
+        else
+          :empty
+        end
+      end
     end
   end
 
@@ -143,20 +163,32 @@ module Day14
   class << self
     def part_one(input)
       grid = Grid.from(input)
-      begin
-        loop do
-          sand = Sand.new(500, 0)
-          while sand.fall(grid)
-            next
-          end
+      sand = Sand.new(500, 0)
+
+      loop do
+        break if sand.pos.y >= grid.num_columns
+        unless sand.fall(grid)
           grid.place(sand.pos, :sand)
+          sand = Sand.new(500, 0)
         end
-      rescue Grid::OutOfBoundsError
-        grid.sand_count
       end
+
+      grid.sand_count
     end
 
     def part_two(input)
+      grid = Grid.from(input, true)
+      sand = Sand.new(500, 0)
+
+      loop do
+        unless sand.fall(grid)
+          grid.place(sand.pos, :sand)
+          break if sand.pos == Point.new(500, 0)
+          sand = Sand.new(500, 0)
+        end
+      end
+
+      grid.sand_count
     end
   end
 end
