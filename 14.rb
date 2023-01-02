@@ -3,14 +3,21 @@ module Day14
     class << self
       def range(start, finish)
         if start.y == finish.y
-          (start.x..finish.x).map do |x|
+          ordered_range(start.x, finish.x).map do |x|
             new(x, start.y)
           end
         else
-          (start.y..finish.y).map do |y|
+          ordered_range(start.y, finish.y).map do |y|
             new(start.x, y)
           end
         end
+      end
+
+      private
+
+      def ordered_range(start, finish)
+        step = -1 * ((start - finish) / (start - finish).abs)
+        (start..finish).step(step)
       end
     end
 
@@ -27,6 +34,12 @@ module Day14
     def ==(other)
       x == other.x && y == other.y
     end
+
+    alias_method :eql?, :==
+
+    def hash
+      [x, y].hash
+    end
   end
 
   class LineParser
@@ -40,33 +53,63 @@ module Day14
   class Grid
     class OutOfBoundsError < StandardError; end
 
+    class << self
+      def from(input)
+        rocks = points(input)
+        x, y = grid_size(rocks)
+        grid = new(x, y)
+        rocks.each do |point|
+          grid.place(point, :rock)
+        end
+        grid
+      end
+
+      private
+
+      def grid_size(points)
+        max_row = points.map(&:x).max
+        max_col = points.map(&:y).max
+        [max_row + 1, max_col + 1]
+      end
+
+      def points(input)
+        points = []
+        input.each do |line|
+          parser.parse(line)
+            .each_cons(2) do |start, finish|
+              points += Point.range(start, finish)
+            end
+        end
+        points.uniq
+      end
+
+      def parser
+        LineParser.new
+      end
+    end
+
     attr_reader :num_rows, :num_columns, :grid
     def initialize(x, y)
       @num_rows = x
       @num_columns = y
-      setup_grid
+      @grid = Hash.new(:empty)
     end
 
-    def get(x, y)
-      grid[x][y]
+    def get(point)
+      raise OutOfBoundsError if point.y >= num_columns
+      grid[point]
     end
 
-    def place(x, y, item)
-      @grid[x][y] = item
+    def place(point, item)
+      @grid[point] = item
     end
 
-    def occupied?(x, y)
-      raise OutOfBoundsError if y >= num_columns
-      get(x, y) != :empty
+    def occupied?(point)
+      get(point) != :empty
     end
 
-    private
-
-    def setup_grid
-      @grid = []
-      num_rows.times do
-        @grid << [].fill(:empty, 0, num_columns)
-      end
+    def sand_count
+      grid.values.count(:sand)
     end
   end
 
@@ -78,7 +121,7 @@ module Day14
 
     def fall(grid)
       fall_options.each do |new_pos|
-        unless grid.occupied?(new_pos.x, new_pos.y)
+        unless grid.occupied?(new_pos)
           @pos = new_pos
           return true
         end
@@ -99,11 +142,21 @@ module Day14
 
   class << self
     def part_one(input)
-      raise NotImplementedError
+      grid = Grid.from(input)
+      begin
+        loop do
+          sand = Sand.new(500, 0)
+          while sand.fall(grid)
+            next
+          end
+          grid.place(sand.pos, :sand)
+        end
+      rescue Grid::OutOfBoundsError
+        grid.sand_count
+      end
     end
 
     def part_two(input)
-      raise NotImplementedError
     end
   end
 end
